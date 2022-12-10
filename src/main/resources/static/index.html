@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!--говорим, что всё под управлением приложения app-->
+<html ng-app="app">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <!--подключение старой библиотеки (не поддерживается, но и не подтягивает доп библиотеки)....-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular.min.js"></script>
+    <!--подключение java script файлика-->
+    <script src="index.js"></script>
+</head>
+
+<body>
+
+<!--корневой div управляется indexController-->
+<div class="container" ng-controller="indexController">
+    <h1>Market</h1>
+
+    <h3>Список товаров</h3>
+    <!--script language="JavaScript">
+    alert("Добро пожаловать!");
+</script>-->
+
+    <!--таблица-->
+    <table class ="table table-hover" cellpadding="0" cellspacing="0">
+    <!--заголовки -->
+        <tr>
+            <td>id</td>
+            <td>Название</td>
+            <td>Цена</td>
+            <td>Удаление товара</td>
+            <td>Добавить в корзину</td>
+        </tr>
+    <!--тело  -->
+        <tbody>
+        <!--for-each-->
+        <tr ng-repeat="p in ProductList">
+            <td>{{p.id}}</td>
+            <td>{{p.title}}</td>
+            <td>{{p.cost}}</td>
+            <td>
+                <button class="btn btn-danger" ng-click="deleteProductById(p.id)">Удалить товар</button>
+            </td>
+            <td>
+                <button class="btn btn-success" ng-click="addToSingleToneCartList(p.id, p.title, p.cost)">Добавить в singleton корзину</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <!--***********************************************************************-->
+        <h2>Добавить новый продукт</h2>
+    <form ng-submit="submitCreateNewProduct()">
+
+        <label>
+            <input type="text" name="title" ng-model="newProduct.title" id="title" placeholder="title" required>
+        </label>
+
+        <label>
+            <input type="number" name="cost" ng-model="newProduct.cost" id="cost" placeholder="cost" required>
+        </label>
+            <button class="btn btn-success" type="submit" >Сохранить товар</button>
+    </form>
+    <!--***********************************************************************-->
+    <br>
+    <h4>Фильтр</h4>
+      <form novalidate ng-submit = "fillTable()">
+          <div class="form-floating input-group-sn">
+              <input type="text" class="form-control" id="filterTitle" placeholder="title part" ng-model="filter.title_part">
+          </div>
+          <div class="form-floating input-group-sn">
+              <input type="number" class="form-control" id="filterMinCost" placeholder="min" ng-model="filter.min_cost">
+          </div>
+          <div class="form-floating input-group-sn">
+              <input type="number" class="form-control" id="filterMaxCost" placeholder="max" ng-model="filter.max_cost">
+          </div>
+          <button class="btn btn-success" type="submit" >Применить</button>
+          <br>
+          <br>
+      </form>
+
+    <div class="container">
+        <button class="btn btn-secondary"  ng-click="change_page(- 1)" >Предыдущая страница </button>
+        <button class="btn btn-primary" ng-click="change_page(1)" >Следующая страница</button>
+    </div>
+    <br>
+
+    <h4>Корзина------------------------------------------------------------</h4>
+    <!--таблица для singletonCart-->
+    <table class ="table table-hover" cellpadding="0" cellspacing="0">
+        <!--заголовки -->
+        <tr>
+            <td>id</td>
+            <td>Название</td>
+            <td>Цена</td>
+            <td>Удаление из корзины</td>
+        </tr>
+        <!--тело  -->
+        <tbody>
+        <!--for-each-->
+        <tr ng-repeat="s in SingletoneCartList">
+            <td>{{s.id}}</td>
+            <td>{{s.title}}</td>
+            <td>{{s.cost}}</td>
+            <td>
+                <button class="btn btn-danger" ng-click="deleteFromSingleToneCart(s.id)">Удалить из корзины / {{s.id}}</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+</div>
+</body>
+</html>
