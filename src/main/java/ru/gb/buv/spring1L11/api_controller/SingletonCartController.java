@@ -8,6 +8,7 @@ import ru.gb.buv.spring1L11.service.SingletonCartService;
 import java.util.List;
 
 @RestController
+//Доступ auth
 @RequestMapping("/api/v1/singleton_cart") // http://localhost:8080/myapp - отправная точка (index.html)!!!
 @RequiredArgsConstructor
 public class SingletonCartController {

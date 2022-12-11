@@ -57,11 +57,11 @@ public class ProductService {
         return productRepository.count();
     }
 
-    public Page<Product> getPage(Integer offset, Integer limit) {
+/*    public Page<Product> getPage(Integer offset, Integer limit) {
         return productRepository
                 .findAll(PageRequest.of(offset, limit, Sort.by(Sort.Direction.ASC, "id")));
 
-    }
+    }*/
     //Updates method
     @Transactional
     public Product update(ProductDto productDto){
@@ -80,7 +80,7 @@ public class ProductService {
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     protected void fillDataBaseAfterStartApplication() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 30; i++) {
             saveProduct(createProduct("prod-" + i, 100L + i * 2));
         }
     }

@@ -9,11 +9,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.gb.buv.spring1L11.entity.Roles;
+import ru.gb.buv.spring1L11.entity.Role;
 import ru.gb.buv.spring1L11.entity.User;
+import ru.gb.buv.spring1L11.repository.RoleRepository;
 import ru.gb.buv.spring1L11.repository.UserRepository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,48 +23,73 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final UserRolesService userRolesService;
+    private final RoleRepository roleRepository;
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
+    //************************************************************************************************
+    //Ищет юзера по имени и возвращает его userdetails (Spring_security)
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        User user = findByUsername(username).
+                orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Roles> roles) {
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+        //Строка перепаковывается в строку другого объекта
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
-
+    //************************************************************************************************
     @EventListener(ApplicationReadyEvent.class)
     protected void createUserDemo(){
-        userRepository.save(makeUserTest(1L,"USER",
+        userRepository.save(makeUserTest(
+                1L,
+                "USER",
                 "$2a$12$UygrywttHqVF6nB2uiqV6uk3iehijjzySgSdll7v1TE6DvKIBlXaW",
-                userRolesService.userRolesRepository.findAllByUser_id(1L)));//100
+                "ROLE_USER"));//100
 
-        userRepository.save(makeUserTest(2L,"MANAGER",
+        userRepository.save(makeUserTest(
+                2L,
+                "MANAGER",
                 "$2a$12$UygrywttHqVF6nB2uiqV6uk3iehijjzySgSdll7v1TE6DvKIBlXaW",
-                userRolesService.userRolesRepository.findAllByUser_id(2L)));//100
+                "ROLE_MANAGER"));//100
 
-        userRepository.save(makeUserTest(3L,"ADMIN",
+        userRepository.save(makeUserTest(
+                3L,
+                "ADMIN",
                 "$2a$12$UygrywttHqVF6nB2uiqV6uk3iehijjzySgSdll7v1TE6DvKIBlXaW",
-                userRolesService.userRolesRepository.findAllByUser_id(3L)));//100
+                "ROLE_ADMIN"));//100
 
-        userRepository.save(makeUserTest(4L,"SUPERADMIN",
+        userRepository.save(makeUserTest(
+                4L,
+                "SUPERADMIN",
                 "$2a$12$UygrywttHqVF6nB2uiqV6uk3iehijjzySgSdll7v1TE6DvKIBlXaW",
-                userRolesService.userRolesRepository.findAllByUser_id(4L)));//100
-
+                "ROLE_SUPERADMIN"));//100
+        List<User> users = userRepository.findAll();
+        for (int i = 0; i <users.size() ; i++) {
+            System.out.println(users.get(i).getUsername());
+        }
     }
-    public User makeUserTest(Long id, String username, String password,Collection<Roles> roles){
+    public User makeUserTest(Long id, String username, String password, String stringRole){
         User u = new User();
         u.setId(id);
         u.setUsername(username);
         u.setPassword(password);
-        u.setRoles(roles);
+        
+        Role role = new Role();
+        role.setName(stringRole);
+        roleRepository.save(role);
+        u.setRoles(roleRepository.findByName(stringRole));
         return u;
+    }
+
+    public List<String> getAllUsernames() {
+        List<User> users = userRepository.findAll();
+        return users.stream().map(User::getUsername).collect(Collectors.toList());
     }
 }
